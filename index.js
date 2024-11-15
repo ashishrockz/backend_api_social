@@ -1,23 +1,51 @@
 require('dotenv').config();
 const express = require('express');
-const mongoose = require('mongoose');
+const cors = require('cors');
 const bodyParser = require('body-parser');
-const authRoutes = require('./routes/authRoutes');
-const postRoutes = require('./routes/postRoutes');
-const connect =require('./service/db');
+const path = require('path');
+const connection = require('./service/db');
+const authentication = require('./routers/auth');
+const { createPost, getPosts } = require('./controllers/postController');
+const { addComment } = require('./controllers/commentController');
+const { toggleLike } = require('./controllers/likeController');
+const verifyToken = require('./middleware/auth');
+
+// Database connection
+connection();
+
+// Initialize Express app
 const app = express();
 
-connect()
-
 // Middlewares
+app.use(cors()); // CORS middleware
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use('/uploads', express.static('uploads'));
 
 // Routes
-app.use('/auth', authRoutes);
-app.use('/posts', postRoutes);
+app.use('/auth', authentication);
 
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}...`);
+// Post routes
+app.post('/posts', verifyToken, createPost);
+app.get('/posts', verifyToken, getPosts);
+
+// Comment route
+app.post('/comments', verifyToken, addComment);
+
+// Like route
+app.post('/likes', verifyToken, toggleLike);
+
+// Root route for API
+app.get('/', (req, res) => {
+  res.send('Welcome to the API');
+});
+
+// Catch-all route for undefined routes
+app.use((req, res) => {
+  res.status(404).send('404: Not Found');
+});
+
+// Start server
+const port = process.env.PORT || 8081;
+app.listen(port, () => {
+  console.log(`Server running on port ${port}...`);
 });
