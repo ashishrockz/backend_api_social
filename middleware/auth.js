@@ -1,24 +1,21 @@
+// Middleware to verify JWT and extract user ID
 const jwt = require('jsonwebtoken');
-const secretKey = process.env.JWT_SECRET;
+const secretKey = process.env.JWT_SECRET || 'your-secret-key';
 
 const verifyToken = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-
-  if (!token) {
-    console.log('No token provided');
-    return res.status(403).json({ message: 'Please Login' });
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ message: 'Authorization header missing or malformed' });
   }
 
-  jwt.verify(token, secretKey, (err, decoded) => {
-    if (err) {
-      console.error('Failed to authenticate token:', err.message);
-      return res.status(403).json({ message: 'Failed to authenticate token' });
-    }
-    req.userId = decoded.id;
-    console.log('Decoded User ID:', req.userId); // Confirm user ID is set
+  const token = authHeader.split(' ')[1];
+  try {
+    const decoded = jwt.verify(token, secretKey);
+    req.userId = decoded.id; // Set userId from decoded token
     next();
-  });
+  } catch (error) {
+    return res.status(401).json({ message: 'Invalid or expired token' });
+  }
 };
 
 module.exports = verifyToken;
