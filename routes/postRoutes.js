@@ -5,6 +5,6 @@ const verifyToken = require('../middleware/auth');
 
 router.post('/', verifyToken, createPost);
 router.get('/user', verifyToken, getUserPosts);
-router.get('/user', verifyToken, getPosts);
+router.get('/all', verifyToken, getPosts);
 
 module.exports = router;

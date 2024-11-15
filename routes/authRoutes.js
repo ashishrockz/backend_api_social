@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { signup, login, users, me } = require('../routers/auth'); // Check the path
+const { signup, login, users, me } = require('../controllers/auth'); // Check the path
 const verifyToken = require('../middleware/auth');
 
 // Define routes
