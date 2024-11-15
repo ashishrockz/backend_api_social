@@ -49,10 +49,17 @@ exports.users = async (req, res) => {
 // Fetch authenticated user function
 exports.me = async (req, res) => {
   try {
+    if (!req.userId) {
+      return res.status(400).json({ message: 'User ID is missing or invalid' });
+    }
+
+    console.log('Fetching user with ID:', req.userId); // Log the userId
+
     const user = await UserModel.findById(req.userId).select('-password');
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
+
     res.json(user);
   } catch (error) {
     console.error('Error fetching user:', error);
