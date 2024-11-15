@@ -4,8 +4,8 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
 const connection = require('./service/db');
-const authentication = require('./routes/authRoutes');
-const { createPost, getPosts } = require('./controllers/postController');
+const authentication = require('./controllers/auth');
+const { createPost, getPosts,getUserPosts } = require('./controllers/postController');
 const { addComment } = require('./controllers/commentController');
 const { toggleLike } = require('./controllers/likeController');
 const verifyToken = require('./middleware/auth');
@@ -26,7 +26,8 @@ app.use('/auth', authentication);
 
 // Post routes
 app.post('/posts', verifyToken, createPost);
-app.get('/posts', verifyToken, getPosts);
+app.get('/all', verifyToken, getPosts);
+app.get('/user', verifyToken, getPosts);
 
 // Comment route
 app.post('/comments', verifyToken, addComment);
