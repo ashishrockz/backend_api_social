@@ -27,7 +27,7 @@ app.use('/auth', authentication);
 // Post routes
 app.post('/posts', verifyToken, createPost);
 app.get('/all', verifyToken, getPosts);
-app.get('/user', verifyToken, getPosts);
+app.get('/user', verifyToken, getUserPosts);
 
 // Comment route
 app.post('/comments', verifyToken, addComment);
