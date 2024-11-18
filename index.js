@@ -9,7 +9,6 @@ const { createPost, getPosts,getUserPosts } = require('./controllers/postControl
 const { addComment } = require('./controllers/commentController');
 const { toggleLike } = require('./controllers/likeController');
 const verifyToken = require('./middleware/auth');
-const multer = require('multer');
 
 // Database connection
 connection();
@@ -26,55 +25,7 @@ app.use(bodyParser.json());
 app.use('/auth', authentication);
 
 // Post routes
-const fs = require('fs');
-const path = require('path');
-
-// Ensure the uploads folder exists
-// const uploadsDir = path.join(__dirname, 'uploads');
-// if (!fs.existsSync(uploadsDir)) {
-//   fs.mkdirSync(uploadsDir);
-// }
-
-// Define the storage configuration for multer
-// const storage = multer.diskStorage({
-//   destination: (req, file, cb) => {
-//     cb(null, uploadsDir); // Save to the uploads directory
-//   },
-//   filename: (req, file, cb) => {
-//     cb(null, Date.now() + '-' + file.originalname); // Use a unique name
-//   },
-// });
-
-// const upload = multer({
-//   storage: storage,
-//   limits: { fileSize: 1024 * 1024 * 5 }, // Limit to 5MB
-//   fileFilter: (req, file, cb) => {
-//     const filetypes = /jpeg|jpg|png|gif/;
-//     const mimetype = filetypes.test(file.mimetype);
-//     const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-
-//     if (mimetype && extname) {
-//       return cb(null, true);
-//     }
-//     cb(new Error('Only image files are allowed!'));
-//   },
-// }).single('image');
-
-
-// // Enhanced error handling in the post route
-// app.post('/create-post', verifyToken, (req, res) => {
-//   upload(req, res, (err) => {
-//     if (err instanceof multer.MulterError) {
-//       return res.status(400).send({ message: 'Multer Error', error: err.message });
-//     } else if (err) {
-//       return res.status(500).send({ message: 'File upload error', error: err.message });
-//     }
-//     // Continue with your post creation
-//     createPost(req, res);
-//   });
-// });
-// Post routes
-app.post('/creat-posts', verifyToken, createPost);
+app.post('/posts', verifyToken, createPost);
 app.get('/all', verifyToken, getPosts);
 app.get('/user', verifyToken, getUserPosts);
 
