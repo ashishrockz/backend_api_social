@@ -53,17 +53,8 @@ cloudinary.config({
 exports.createPost = async (req, res) => {
   const { content } = req.body;
 
-<<<<<<< HEAD
   // Use multer middleware before entering this function, so req.file is populated
   if (!req.file) {
-=======
-  // Debugging log to verify data
-  console.log('Received content:', content);
-  console.log('Received file:', file);
-
-  if (!file) {
-    console.error('No file uploaded');
->>>>>>> 30885eb3091237e811e65ac4acbb45407b1931d1
     return res.status(400).json({ error: 'No file uploaded' });
   }
 
@@ -72,8 +63,6 @@ exports.createPost = async (req, res) => {
     const uploadedImage = await cloudinary.uploader.upload(req.file.path, {
       folder: 'posts',
     });
-
-    console.log('Cloudinary Upload Success:', uploadedImage); // Debugging log
 
     // Save the post with the image URL
     const newPost = await Post.create({
@@ -84,7 +73,7 @@ exports.createPost = async (req, res) => {
 
     res.status(201).json(newPost);
   } catch (error) {
-    console.error('Error creating post:', error); // Detailed error log
-    res.status(500).json({ error: 'Error creating post', details: error.message });
+    console.error('Error creating post:', error);
+    res.status(400).json({ error: 'Error creating post', details: error.message });
   }
 };
