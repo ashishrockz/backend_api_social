@@ -26,6 +26,10 @@ app.use(bodyParser.json());
 app.use('/auth', authentication);
 
 // Post routes
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir);
+}
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'uploads/'); // Specify the directory to save files
