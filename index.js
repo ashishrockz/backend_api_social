@@ -5,10 +5,11 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const connection = require('./service/db');
 const authentication = require('./routes/authRoutes');
-const { createPost, getPosts,getUserPosts } = require('./controllers/postController');
+const { createPost, getPosts } = require('./controllers/postController');
 const { addComment } = require('./controllers/commentController');
 const { toggleLike } = require('./controllers/likeController');
 const verifyToken = require('./middleware/auth');
+const multer = require('multer');
 
 // Database connection
 connection();
@@ -25,9 +26,49 @@ app.use(bodyParser.json());
 app.use('/auth', authentication);
 
 // Post routes
-app.post('/posts', verifyToken, createPost);
-app.get('/all', verifyToken, getPosts);
-app.get('/user', verifyToken, getUserPosts);
+// Ensure you are requiring the necessary dependencies correctly
+
+// Define the `storage` configuration for multer
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/'); // Specify the directory to save files
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + '-' + file.originalname); // Unique filename with timestamp
+  },
+});
+
+// Initialize `upload` middleware using the defined `storage`
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 1024 * 1024 * 5 },
+  fileFilter: (req, file, cb) => {
+    const filetypes = /jpeg|jpg|png|gif/;
+    const mimetype = filetypes.test(file.mimetype);
+    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+
+    if (mimetype && extname) {
+      return cb(null, true);
+    }
+    cb(new Error('Only image files are allowed!'));
+  },
+}).single('image');
+
+// Enhanced error handling in the post route
+app.post('/create-post', verifyToken, (req, res) => {
+  upload(req, res, (err) => {
+    if (err instanceof multer.MulterError) {
+      return res.status(400).send({ message: 'Multer Error', error: err.message });
+    } else if (err) {
+      return res.status(500).send({ message: 'File upload error', error: err.message });
+    }
+    // Continue with your post creation
+    createPost(req, res);
+  });
+});
+
+
+app.get('/posts', verifyToken, getPosts);
 
 // Comment route
 app.post('/comments', verifyToken, addComment);
@@ -46,7 +87,7 @@ app.use((req, res) => {
 });
 
 // Start server
-const port = process.env.PORT || 8081;
+const port = process.env.PORT || 8080;
 app.listen(port, () => {
   console.log(`Server running on port ${port}...`);
 });

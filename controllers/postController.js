@@ -1,4 +1,8 @@
 const Post = require('../models/Posts');
+const express = require('express');
+
+const app = express();
+
 
 // exports.createPost = async (req, res) => {
 //   const { content, imageUrl } = req.body;
@@ -38,24 +42,25 @@ exports.getUserPosts = async (req, res) => {
 // };
 const cloudinary = require('cloudinary').v2;
 
-// Set up Cloudinary configuration
+// Cloudinary configuration
 cloudinary.config({
   cloud_name: 'dyqmr5gxd',
   api_key: '132426531318371',
   api_secret: 'qTQgV3KCcKcq5Wyfwb3MH3YuAuI',
 });
 
+// Create Post Controller
 exports.createPost = async (req, res) => {
   const { content } = req.body;
-  const { file } = req.files; // Assuming you're using `express-fileupload` or similar
 
-  if (!file) {
+  // Use multer middleware before entering this function, so req.file is populated
+  if (!req.file) {
     return res.status(400).json({ error: 'No file uploaded' });
   }
 
   try {
     // Upload the file to Cloudinary
-    const uploadedImage = await cloudinary.uploader.upload(file.tempFilePath, {
+    const uploadedImage = await cloudinary.uploader.upload(req.file.path, {
       folder: 'posts',
     });
 
@@ -63,7 +68,7 @@ exports.createPost = async (req, res) => {
     const newPost = await Post.create({
       user: req.userId,
       content,
-      imageUrl: uploadedImage.secure_url, // Cloudinary URL
+      imageUrl: uploadedImage.secure_url,
     });
 
     res.status(201).json(newPost);
