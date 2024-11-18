@@ -26,23 +26,28 @@ app.use(bodyParser.json());
 app.use('/auth', authentication);
 
 // Post routes
+const fs = require('fs');
+const path = require('path');
+
+// Ensure the uploads folder exists
 const uploadsDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir);
 }
+
+// Define the storage configuration for multer
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/'); // Specify the directory to save files
+    cb(null, uploadsDir); // Save to the uploads directory
   },
   filename: (req, file, cb) => {
-    cb(null, Date.now() + '-' + file.originalname); // Unique filename with timestamp
+    cb(null, Date.now() + '-' + file.originalname); // Use a unique name
   },
 });
 
-// Initialize `upload` middleware using the defined `storage`
 const upload = multer({
   storage: storage,
-  limits: { fileSize: 1024 * 1024 * 5 },
+  limits: { fileSize: 1024 * 1024 * 5 }, // Limit to 5MB
   fileFilter: (req, file, cb) => {
     const filetypes = /jpeg|jpg|png|gif/;
     const mimetype = filetypes.test(file.mimetype);
@@ -54,6 +59,7 @@ const upload = multer({
     cb(new Error('Only image files are allowed!'));
   },
 }).single('image');
+
 
 // Enhanced error handling in the post route
 app.post('/create-post', verifyToken, (req, res) => {
