@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const connection = require('./service/db');
 const authentication = require('./routes/authRoutes');
-const { createPost, getPosts } = require('./controllers/postController');
+const { createPost, getPosts,getUserPosts } = require('./controllers/postController');
 const { addComment } = require('./controllers/commentController');
 const { toggleLike } = require('./controllers/likeController');
 const verifyToken = require('./middleware/auth');
@@ -69,7 +69,7 @@ app.post('/create-post', verifyToken, (req, res) => {
 
 
 app.get('/posts', verifyToken, getPosts);
-
+app.get('/userpost',verifyToken,getUserPosts)
 // Comment route
 app.post('/comments', verifyToken, addComment);
 
