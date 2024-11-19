@@ -77,3 +77,60 @@ exports.createPost = async (req, res) => {
     res.status(400).json({ error: 'Error creating post', details: error.message });
   }
 };
+exports.updatePost = async (req, res) => {
+  const { content } = req.body;
+  const postId = req.params.id;
+
+  try {
+    // Find the post by ID
+    const post = await Post.findById(postId);
+
+    // Check if the post exists
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
+    // Check if the authenticated user is the owner of the post
+    if (post.user.toString() !== req.userId) {
+      return res.status(403).json({ error: 'Unauthorized to edit this post' });
+    }
+
+    // Update the post's content
+    post.content = content || post.content;
+
+    // Save the updated post
+    const updatedPost = await post.save();
+
+    res.status(200).json(updatedPost);
+  } catch (error) {
+    console.error('Error updating post:', error);
+    res.status(400).json({ error: 'Error updating post', details: error.message });
+  }
+};
+// Delete Post Controller
+exports.deletePost = async (req, res) => {
+  const postId = req.params.id;
+
+  try {
+    // Find the post by ID
+    const post = await Post.findById(postId);
+
+    // Check if the post exists
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
+    // Check if the authenticated user is the owner of the post
+    if (post.user.toString() !== req.userId) {
+      return res.status(403).json({ error: 'Unauthorized to delete this post' });
+    }
+
+    // Delete the post
+    await Post.findByIdAndDelete(postId);
+
+    res.status(200).json({ message: 'Post deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting post:', error);
+    res.status(400).json({ error: 'Error deleting post', details: error.message });
+  }
+};

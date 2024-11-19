@@ -28,7 +28,8 @@ app.use('/auth', authentication);
 app.post('/posts', verifyToken, createPost);
 app.get('/all', verifyToken, getPosts);
 app.get('/user', verifyToken, getUserPosts);
-
+app.put('/edit/:id', verifyToken, updatePost);
+app.delete('/delete/:id', verifyToken, deletePost);
 // Comment route
 app.post('/comments', verifyToken, addComment);
 
