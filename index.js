@@ -2,40 +2,21 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const path = require('path');
 const connection = require('./service/db');
-const authentication = require('./routes/authRoutes');
-const { createPost, getPosts,getUserPosts,updatePost,deletePost } = require('./controllers/postController');
-const { addComment } = require('./controllers/commentController');
-const { toggleLike } = require('./controllers/likeController');
-const verifyToken = require('./middleware/auth');
-
+const employeeapi = require('./router/employee')
 // Database connection
 connection();
 
 // Initialize Express app
 const app = express();
 
-// Middlewares
+// Middleware
 app.use(cors()); // CORS middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 // Routes
-app.use('/auth', authentication);
-
-// Post routes
-app.post('/posts', verifyToken, createPost);
-app.get('/all', verifyToken, getPosts);
-app.get('/user', verifyToken, getUserPosts);
-app.put('/edit/:id', verifyToken, updatePost);
-app.delete('/delete/:id', verifyToken, deletePost);
-// Comment route
-app.post('/comments', verifyToken, addComment);
-
-// Like route
-app.post('/likes', verifyToken, toggleLike);
-
+app.use("/api/emp", employeeapi);
 // Root route for API
 app.get('/', (req, res) => {
   res.send('Welcome to the API');
@@ -46,8 +27,8 @@ app.use((req, res) => {
   res.status(404).send('404: Not Found');
 });
 
-// Start server
-const port = process.env.PORT || 8081;
-app.listen(port, () => {
+// Start the server
+const port = process.env.PORT || 5000;
+app.listen(port, '0.0.0.0', () => {
   console.log(`Server running on port ${port}...`);
 });
