@@ -8,10 +8,10 @@ const employeeSchema = new mongoose.Schema(
     middleName: { type: String, default: "" },
     lastName: { type: String, required: true },
     phone: { type: String, required: true },
-    personalMail: { type: String, required: true },
+    personalMail: { type: String },
     companyMail: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    address: { type: String, required: true },
+    address: { type: String },
     department: {
       type: String,
       enum: [
