@@ -102,9 +102,10 @@ router.post("/login", async (req, res) => {
 });
 
 // Update Employee
-router.put('/:id', async (req, res) => {
+router.put('/:employeeId', async (req, res) => {
     try {
-      const employee = await Employee.findById(req.params.id);
+      const { employeeId } = req.params;
+      const employee = await Employee.findOne({ employeeId });
       if (!employee) return res.status(404).json({ error: 'Employee not found' });
   
       // Identify updated fields
