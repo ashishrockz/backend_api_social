@@ -54,8 +54,8 @@ router.get("/all", async (req, res) => {
 // Get an individual employee by ID
 router.get("/:id", async (req, res) => {
   try {
-    const { employeeId } = req.params;
-    const employee = await Employee.findOne({ employeeId });
+    const { id } = req.params; // Correctly use 'id' for consistency
+    const employee = await Employee.findOne({ employeeId: id });
     if (!employee) {
       return res.status(404).json({ message: "Employee not found" });
     }
