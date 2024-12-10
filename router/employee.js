@@ -52,7 +52,7 @@ router.get("/all", async (req, res) => {
 });
 
 // Get an individual employee by ID
-router.get("/:employeeId", async (req, res) => {
+router.get("/:id", async (req, res) => {
   try {
     const { employeeId } = req.params;
     const employee = await Employee.findOne({ employeeId });
