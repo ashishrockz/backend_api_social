@@ -135,8 +135,8 @@ router.put('/:employeeId', async (req, res) => {
 // Fetch individual user (authenticated user) details
 router.get("/me", authenticateToken, async (req, res) => {
   try {
-    // The user is already authenticated and available in req.user due to the middleware
-    const employeeId = req.user.id;
+    const employeeId = req.user.id; // The ID from the decoded JWT token
+    console.log("Decoded user ID:", employeeId); // Debug log for checking decoded token
 
     // Fetch the authenticated employee from the database
     const employee = await Employee.findById(employeeId);
@@ -156,12 +156,9 @@ router.get("/me", authenticateToken, async (req, res) => {
       },
     });
   } catch (error) {
+    console.error(error); // Log any server errors
     res.status(500).json({ message: "Error fetching authenticated user", error: error.message });
   }
 });
-
-
-
-
 
 module.exports = router;
