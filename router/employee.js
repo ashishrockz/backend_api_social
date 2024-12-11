@@ -130,6 +130,39 @@ router.put('/:employeeId', async (req, res) => {
       res.status(400).json({ error: err.message });
     }
   });;
+// Get logged-in employee details
+router.get("/me", async (req, res) => {
+  try {
+    // Extract the token from the Authorization header
+    const token = req.headers.authorization?.split(" ")[1];
+
+    if (!token) {
+      return res.status(401).json({ message: "No token provided" });
+    }
+
+    // Verify the token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // Find the employee by the ID from the token
+    const employee = await Employee.findById(decoded.id);
+
+    if (!employee) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+
+    // Return the logged-in user's details
+    res.status(200).json({
+      id: employee._id,
+      firstName: employee.firstName,
+      lastName: employee.lastName,
+      companyMail: employee.companyMail,
+      department: employee.department,
+      isAdmin: employee.isAdmin,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching user details", error: error.message });
+  }
+});
 
 
 module.exports = router;
