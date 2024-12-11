@@ -1,7 +1,9 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const Employee = require("../model/Employee"); // Adjust the path based on your directory structure
+const Employee = require("../model/Employee"); 
+const authenticateToken = require("../middleware/authenticate"); // Import the middleware
+
 require('dotenv').config();
 
 const router = express.Router();
@@ -131,20 +133,13 @@ router.put('/:employeeId', async (req, res) => {
     }
   });;
 // Fetch individual user (authenticated user) details
-router.get("/me", async (req, res) => {
+router.get("/me", authenticateToken, async (req, res) => {
   try {
-    // Get the token from the Authorization header
-    const token = req.headers.authorization?.split(" ")[1];
-
-    if (!token) {
-      return res.status(401).json({ message: "No token provided" });
-    }
-
-    // Verify the JWT token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    // The user is already authenticated and available in req.user due to the middleware
+    const employeeId = req.user.id;
 
     // Fetch the authenticated employee from the database
-    const employee = await Employee.findById(decoded.id);
+    const employee = await Employee.findById(employeeId);
     if (!employee) {
       return res.status(404).json({ message: "Employee not found" });
     }
@@ -164,6 +159,7 @@ router.get("/me", async (req, res) => {
     res.status(500).json({ message: "Error fetching authenticated user", error: error.message });
   }
 });
+
 
 
 
