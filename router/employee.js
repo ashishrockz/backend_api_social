@@ -135,22 +135,23 @@ router.get("/me", async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader) {
-      return res.status(401).json({ message: "Authorization header missing" });
+      return res.status(401).json({ message: "Authorization header is missing" });
     }
 
-    const token = authHeader.split(" ")[1];
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const token = authHeader.split(" ")[1]; // Extract the token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET); // Decode the token
 
-    const employee = await Employee.findById(decoded.id);
+    const employee = await Employee.findById(decoded.id); // Find employee by ID
     if (!employee) {
       return res.status(404).json({ message: "Employee not found" });
     }
 
-    res.status(200).json(employee);
+    res.status(200).json(employee); // Respond with employee data
   } catch (error) {
     res.status(500).json({ message: "Error fetching employee", error: error.message });
   }
 });
+
 
 
 module.exports = router;
