@@ -130,27 +130,41 @@ router.put('/:employeeId', async (req, res) => {
       res.status(400).json({ error: err.message });
     }
   });;
-// Get logged-in employee details
+// Fetch individual user (authenticated user) details
 router.get("/me", async (req, res) => {
   try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader) {
-      return res.status(401).json({ message: "Authorization header is missing" });
+    // Get the token from the Authorization header
+    const token = req.headers.authorization?.split(" ")[1];
+
+    if (!token) {
+      return res.status(401).json({ message: "No token provided" });
     }
 
-    const token = authHeader.split(" ")[1]; // Extract the token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET); // Decode the token
+    // Verify the JWT token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    const employee = await Employee.findById(decoded.id); // Find employee by ID
+    // Fetch the authenticated employee from the database
+    const employee = await Employee.findById(decoded.id);
     if (!employee) {
       return res.status(404).json({ message: "Employee not found" });
     }
 
-    res.status(200).json(employee); // Respond with employee data
+    // Respond with the employee details
+    res.status(200).json({
+      employee: {
+        id: employee._id,
+        firstName: employee.firstName,
+        lastName: employee.lastName,
+        companyMail: employee.companyMail,
+        department: employee.department,
+        isAdmin: employee.isAdmin,
+      },
+    });
   } catch (error) {
-    res.status(500).json({ message: "Error fetching employee", error: error.message });
+    res.status(500).json({ message: "Error fetching authenticated user", error: error.message });
   }
 });
+
 
 
 
