@@ -2,8 +2,6 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Employee = require("../model/Employee"); 
-const authenticateToken = require("../middleware/authenticate"); // Import the middleware
-
 require('dotenv').config();
 
 const router = express.Router();
@@ -67,48 +65,44 @@ router.get("/:employeeId", async (req, res) => {
   }
 });
 
-// Employee login
-router.post("/login", async (req, res) => {
-  try {
-    const { companyMail, password } = req.body;
+// // Employee login
+// router.post("/login", async (req, res) => {
+//   const { companyMail, password } = req.body;
 
-    // Validate employee credentials
-    const employee = await Employee.findOne({ companyMail });
-    if (!employee) {
-      return res.status(404).json({ message: "Employee not found" });
-    }
+//   try {
+//     const employee = await Employee.findOne({ companyMail });
+//     if (!employee) {
+//       return res.status(400).json({ message: "Employee not found" });
+//     }
 
-    const isPasswordValid = await bcrypt.compare(password, employee.password);
-    if (!isPasswordValid) {
-      return res.status(401).json({ message: "Invalid password" });
-    }
+//     const isMatch = await bcrypt.compare(password, employee.password);
+//     if (!isMatch) {
+//       return res.status(400).json({ message: "Invalid credentials" });
+//     }
 
-    // Generate JWT token
-    const token = jwt.sign({ id: employee._id, isAdmin: employee.isAdmin }, process.env.JWT_SECRET, { expiresIn: "1h" });
+//     const token = jwt.sign(
+//       { employeeId: employee._id, isAdmin: employee.isAdmin },
+//       "yourSecretKey", // replace with your secret key
+//       { expiresIn: "1h" }
+//     );
 
-    res.status(200).json({
-      message: "Login successful",
-      token,
-      employee: {
-        id: employee._id,
-        firstName: employee.firstName,
-        lastName: employee.lastName,
-        companyMail: employee.companyMail,
-        department: employee.department,
-        isAdmin: employee.isAdmin,
-      },
-    });
-  } catch (error) {
-    res.status(500).json({ message: "Error during login", error: error.message });
-  }
-});
-
+//     res.json({
+//       message: "Login successful",
+//       token,
+//       employeeId: employee._id,
+//       isAdmin: employee.isAdmin,
+//     });
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// });
 // Update Employee
 router.put('/:employeeId', async (req, res) => {
     try {
       const { employeeId } = req.params;
       const employee = await Employee.findOne({ employeeId });
-      if (!employee) return res.status(404).json({ error: 'Employee not found' });
+      if (!employee)
+         return res.status(404).json({ error: 'Employee not found' });
   
       // Identify updated fields
       const updatedFields = {};
@@ -132,33 +126,6 @@ router.put('/:employeeId', async (req, res) => {
       res.status(400).json({ error: err.message });
     }
   });;
-// Fetch individual user (authenticated user) details
-router.get("/me", authenticateToken, async (req, res) => {
-  try {
-    const employeeId = req.user.id; // The ID from the decoded JWT token
-    console.log("Decoded user ID:", employeeId); // Debug log for checking decoded token
-
-    // Fetch the authenticated employee from the database
-    const employee = await Employee.findById(employeeId);
-    if (!employee) {
-      return res.status(404).json({ message: "Employee not found" });
-    }
-
-    // Respond with the employee details
-    res.status(200).json({
-      employee: {
-        id: employee._id,
-        firstName: employee.firstName,
-        lastName: employee.lastName,
-        companyMail: employee.companyMail,
-        department: employee.department,
-        isAdmin: employee.isAdmin,
-      },
-    });
-  } catch (error) {
-    console.error(error); // Log any server errors
-    res.status(500).json({ message: "Error fetching authenticated user", error: error.message });
-  }
-});
 
 module.exports = router;
+

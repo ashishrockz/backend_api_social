@@ -21,6 +21,7 @@ const employeeSchema = new mongoose.Schema(
         "UI",
         "Testing",
         "HR",
+        "TeamLead",
         "Manager",
         "System Admin",
       ],

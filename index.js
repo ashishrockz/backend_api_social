@@ -3,7 +3,9 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const connection = require('./service/db');
-const employeeapi = require('./router/employee')
+const employeeapi = require('./router/employee');
+const leaveapi = require('./router/leaves');
+const auth = require('./router/auth')
 // Database connection
 connection();
 
@@ -17,6 +19,9 @@ app.use(bodyParser.json());
 
 // Routes
 app.use("/api/emp", employeeapi);
+app.use("/api/leave", leaveapi);
+app.use("/auth", auth);
+
 // Root route for API
 app.get('/', (req, res) => {
   res.send('Welcome to the API');
