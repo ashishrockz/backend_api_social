@@ -22,13 +22,17 @@ const leaveSchema = new mongoose.Schema(
       enum: ["Pending", "Approved", "Rejected"],
       default: "Pending",
     },
-    approvedBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Employee", // Assuming managers or admins are part of the Employee schema
-      default: null,
+    approver: {
+      teamLead: { status: { type: String, enum: ["Pending", "Approved", "Rejected"], default: "Pending" }, approvedAt: Date },
+      manager: { status: { type: String, enum: ["Pending", "Approved", "Rejected"], default: "Pending" }, approvedAt: Date },
     },
-    createdAt: { type: Date, default: Date.now },
-    updatedAt: { type: Date, default: Date.now },
+    appliedAt: { type: Date, default: Date.now },
+    history: [
+      {
+        updatedAt: { type: Date, default: Date.now },
+        updatedFields: { type: Object, default: {} },
+      },
+    ],
   },
   { timestamps: true }
 );

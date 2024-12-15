@@ -19,7 +19,7 @@ app.use(bodyParser.json());
 
 // Routes
 app.use("/api/emp", employeeapi);
-app.use("/api/leave", leaveapi);
+app.use("/api", leaveapi);
 app.use("/auth", auth);
 
 // Root route for API

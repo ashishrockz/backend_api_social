@@ -1,74 +1,114 @@
-// Create Leave Request
 const express = require("express");
+const mongoose = require("mongoose"); // Import mongoose
 const router = express.Router();
-const Leave = require("../model/Leaves"); // Assuming Leave model is in the 'models' folder
+const LeaveRequest = require("../model/Leaves"); // Assuming Leave model is in the 'models' folder
 
-// Route to create a leave
-router.post("/create", async (req, res) => {
+// Apply for leave
+router.post("/leave/apply", async (req, res) => {
   try {
-    const { employeeId, leaveType, startDate, endDate, reason, approvalLevels } = req.body;
-    
-    const newLeave = new Leave({
+    const { employeeId, leaveType, startDate, endDate, reason } = req.body;
+
+    // Check for overlapping leave requests
+    const overlappingLeave = await LeaveRequest.findOne({
       employeeId,
+      $or: [{ startDate: { $lte: endDate }, endDate: { $gte: startDate } }],
+      status: "Approved",
+    });
+
+    if (overlappingLeave) {
+      return res
+        .status(400)
+        .json({ message: "Overlapping leave already exists." });
+    }
+
+    const leaveRequest = new LeaveRequest({
+      employeeId: new mongoose.Types.ObjectId(employeeId), // Use 'new' with ObjectId
       leaveType,
       startDate,
       endDate,
       reason,
-      approvalLevels,
     });
-    
-    const savedLeave = await newLeave.save();
-    res.status(201).json(savedLeave);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
+
+    await leaveRequest.save();
+    res
+      .status(201)
+      .json({ message: "Leave request submitted successfully!", leaveRequest });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error applying for leave", error: error.message });
   }
 });
-router.get("/all", async (req, res) => {
-    try {
-      const leaves = await Leave.find().populate("employeeId").populate("approvalLevels.approverId");
-      res.status(200).json(leaves);
-    } catch (err) {
-      res.status(400).json({ error: err.message });
+
+
+// Approve or reject leave
+router.put("/leave/:leaveId", async (req, res) => {
+  try {
+    const { leaveId } = req.params;
+    const { approverRole, status } = req.body; // approverRole can be "teamLead" or "manager"
+
+    const leaveRequest = await LeaveRequest.findById(leaveId);
+    if (!leaveRequest) return res.status(404).json({ message: "Leave request not found" });
+
+    // Update the status for the approver
+    if (approverRole === "teamLead") {
+      leaveRequest.approver.teamLead.status = status;
+      leaveRequest.approver.teamLead.approvedAt = new Date();
+    } else if (approverRole === "manager") {
+      leaveRequest.approver.manager.status = status;
+      leaveRequest.approver.manager.approvedAt = new Date();
     }
-  });
-  router.get("/employee/:employeeId", async (req, res) => {
-    try {
-      const { employeeId } = req.params;
-      const leaves = await Leave.find({ employeeId }).populate("approvalLevels.approverId");
-      res.status(200).json(leaves);
-    } catch (err) {
-      res.status(400).json({ error: err.message });
+
+    // Final approval logic
+    if (
+      leaveRequest.approver.teamLead.status === "Approved" &&
+      leaveRequest.approver.manager.status === "Approved"
+    ) {
+      leaveRequest.status = "Approved";
+    } else if (
+      leaveRequest.approver.teamLead.status === "Rejected" ||
+      leaveRequest.approver.manager.status === "Rejected"
+    ) {
+      leaveRequest.status = "Rejected";
     }
-  });
-  // Update Leave Request
-router.patch("/update/:leaveId", async (req, res) => {
-    try {
-      const { leaveId } = req.params;
-      const { status, approvalLevels, approvedBy } = req.body;
-  
-      const leave = await Leave.findById(leaveId);
-      if (!leave) {
-        return res.status(404).json({ error: "Leave request not found" });
-      }
-  
-      // Update the status and approval levels
-      if (status) {
-        leave.status = status;
-      }
-  
-      if (approvalLevels) {
-        leave.approvalLevels = approvalLevels;
-      }
-  
-      if (approvedBy) {
-        leave.approvedBy = approvedBy;
-      }
-  
-      leave.updatedAt = Date.now();
-      await leave.save();
-      res.status(200).json(leave);
-    } catch (err) {
-      res.status(400).json({ error: err.message });
-    }
-  });
+
+    await leaveRequest.save();
+    res.status(200).json({ message: `Leave ${status.toLowerCase()} by ${approverRole}`, leaveRequest });
+  } catch (error) {
+    res.status(500).json({ message: "Error updating leave status", error: error.message });
+  }
+});
+
+// Get all leave requests
+router.get("/leave/all", async (req, res) => {
+  try {
+    const leaveRequests = await LeaveRequest.find();
+    res.status(200).json(leaveRequests);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching leave requests", error: error.message });
+  }
+});
+// router.get("/leave/all", async (req, res) => {
+//   try {
+//     // Fetch leave requests where team lead has approved
+//     const leaveRequests = await LeaveRequest.find({
+//       "approver.teamLead.status": "Approved", // Filter for team lead approval
+//     });
+//     res.status(200).json(leaveRequests);
+//   } catch (error) {
+//     res.status(500).json({ message: "Error fetching leave requests", error: error.message });
+//   }
+// });
+
+// Get leave requests by employee ID
+router.get("/leave/:employeeId", async (req, res) => {
+  try {
+    const { employeeId } = req.params;
+    const leaveRequests = await LeaveRequest.find({ employeeId });
+    res.status(200).json(leaveRequests);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching leave requests", error: error.message });
+  }
+});
+
 module.exports = router;
