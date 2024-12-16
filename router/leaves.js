@@ -22,7 +22,8 @@ router.post("/leave/apply", async (req, res) => {
     }
 
     const leaveRequest = new LeaveRequest({
-      employeeId: new mongoose.Types.ObjectId(employeeId), // Use 'new' with ObjectId
+      // employeeId: new mongoose.Types.ObjectId(employeeId), // Use 'new' with ObjectId
+      employeeId,
       leaveType,
       startDate,
       endDate,
