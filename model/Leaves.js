@@ -38,9 +38,13 @@ const leaveSchema = new mongoose.Schema(
 );
 
 // Pre-save middleware to update the updatedAt field
-leaveSchema.pre("save", function (next) {
-  this.updatedAt = Date.now();
-  next();
+leaveSchema.pre('save', function(next) {
+  if (this.startDate > this.endDate) {
+    const err = new Error('Start Date cannot be later than End Date');
+    next(err);
+  } else {
+    next();
+  }
 });
 
 // Export the Leave model
