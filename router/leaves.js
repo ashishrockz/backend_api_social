@@ -107,5 +107,24 @@ router.get("/leave/:employeeId", async (req, res) => {
     res.status(500).json({ message: "Error fetching leave requests", error: error.message });
   }
 });
+// Delete leave request
+router.delete("/leave/:leaveId", async (req, res) => {
+  try {
+    const { leaveId } = req.params;
+
+    // Check if the leave request exists
+    const leaveRequest = await LeaveRequest.findById(leaveId);
+    if (!leaveRequest) {
+      return res.status(404).json({ message: "Leave request not found" });
+    }
+
+    // Delete the leave request
+    await LeaveRequest.findByIdAndDelete(leaveId);
+
+    res.status(200).json({ message: "Leave request deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Error deleting leave request", error: error.message });
+  }
+});
 
 module.exports = router;
