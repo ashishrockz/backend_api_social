@@ -4,41 +4,38 @@ const router = express.Router();
 const LeaveRequest = require("../model/Leaves"); // Assuming Leave model is in the 'models' folder
 
 // Apply for leave
+// Apply for leave
 router.post("/leave/apply", async (req, res) => {
   try {
-    const { employeeId, leaveType, startDate, endDate, reason } = req.body;
+    const { employeeId, startDate, endDate, reason } = req.body;
 
     // Check for overlapping leave requests
     const overlappingLeave = await LeaveRequest.findOne({
       employeeId,
-      $or: [{ startDate: { $lte: endDate }, endDate: { $gte: startDate } }],
+      $or: [
+        { startDate: { $lte: endDate }, endDate: { $gte: startDate } },
+      ],
       status: "Approved",
     });
 
     if (overlappingLeave) {
-      return res
-        .status(400)
-        .json({ message: "Overlapping leave already exists." });
+      return res.status(400).json({ message: "Overlapping leave already exists." });
     }
 
     const leaveRequest = new LeaveRequest({
-      employeeId: new mongoose.Types.ObjectId(employeeId), // Use 'new' with ObjectId
-      leaveType,
+      employeeId,
       startDate,
       endDate,
       reason,
     });
 
     await leaveRequest.save();
-    res
-      .status(201)
-      .json({ message: "Leave request submitted successfully!", leaveRequest });
+    res.status(201).json({ message: "Leave request submitted successfully!", leaveRequest });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error applying for leave", error: error.message });
+    res.status(500).json({ message: "Error applying for leave", error: error.message });
   }
 });
+
 
 
 // Approve or reject leave
