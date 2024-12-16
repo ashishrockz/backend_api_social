@@ -107,6 +107,26 @@ router.get("/leave/:employeeId", async (req, res) => {
     res.status(500).json({ message: "Error fetching leave requests", error: error.message });
   }
 });
+// Get individual leave request by leaveId
+router.get("/leave/details/:leaveId", async (req, res) => {
+  try {
+    const { leaveId } = req.params;
+    
+    // Fetch the leave request by leaveId
+    const leaveRequest = await LeaveRequest.findById(leaveId);
+    
+    // If leave request not found, return 404
+    if (!leaveRequest) {
+      return res.status(404).json({ message: "Leave request not found" });
+    }
+
+    // Return the leave request details
+    res.status(200).json(leaveRequest);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching leave request details", error: error.message });
+  }
+});
+
 // Delete leave request
 router.delete("/leave/:leaveId", async (req, res) => {
   try {
