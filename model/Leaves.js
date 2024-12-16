@@ -9,7 +9,6 @@ const leaveSchema = new mongoose.Schema(
     leaveType: {
       type: String,
       enum: ["Sick Leave", "Casual Leave", "Paid Leave", "Maternity Leave", "Paternity Leave"],
-      required: true,
     },
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true },
