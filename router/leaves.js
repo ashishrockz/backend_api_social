@@ -47,6 +47,13 @@ router.put("/leave/:leaveId", async (req, res) => {
     const leaveRequest = await LeaveRequest.findById(leaveId);
     if (!leaveRequest) return res.status(404).json({ message: "Leave request not found" });
 
+    // Validate manager approval only after team lead approval
+    if (approverRole === "manager" && leaveRequest.approver.teamLead.status !== "Approved") {
+      return res
+        .status(400)
+        .json({ message: "Manager approval is not allowed until the team lead approves" });
+    }
+
     // Update the status for the approver
     if (approverRole === "teamLead") {
       leaveRequest.approver.teamLead.status = status;
@@ -75,6 +82,7 @@ router.put("/leave/:leaveId", async (req, res) => {
     res.status(500).json({ message: "Error updating leave status", error: error.message });
   }
 });
+
 
 // Get all leave requests
 router.get("/leave/all", async (req, res) => {
