@@ -24,6 +24,7 @@ router.post("/leave/apply", async (req, res) => {
 
     const leaveRequest = new LeaveRequest({
       employeeId,
+      leaveType,
       startDate,
       endDate,
       reason,
