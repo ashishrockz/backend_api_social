@@ -4,10 +4,9 @@ const router = express.Router();
 const LeaveRequest = require("../model/Leaves"); // Assuming Leave model is in the 'models' folder
 
 // Apply for leave
-// Apply for leave
 router.post("/leave/apply", async (req, res) => {
   try {
-    const { employeeId, startDate, endDate, reason } = req.body;
+    const { employeeId,leaveType, startDate, endDate, reason } = req.body;
 
     // Check for overlapping leave requests
     const overlappingLeave = await LeaveRequest.findOne({
