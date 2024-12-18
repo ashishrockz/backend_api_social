@@ -107,6 +107,7 @@ router.get("/leave/:employeeId", async (req, res) => {
     res.status(500).json({ message: "Error fetching leave requests", error: error.message });
   }
 });
+<<<<<<< Updated upstream
 // Get individual leave request by leaveId
 router.get("/leave/details/:leaveId", async (req, res) => {
   try {
@@ -127,6 +128,8 @@ router.get("/leave/details/:leaveId", async (req, res) => {
   }
 });
 
+=======
+>>>>>>> Stashed changes
 // Delete leave request
 router.delete("/leave/:leaveId", async (req, res) => {
   try {
