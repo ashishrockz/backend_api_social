@@ -74,6 +74,21 @@ router.put("/leave/:leaveId", async (req, res) => {
       leaveRequest.approver.manager.status === "Rejected"
     ) {
       leaveRequest.status = "Rejected";
+    }else if (
+      leaveRequest.approver.teamLead.status === "Pending" ||
+      leaveRequest.approver.manager.status === "Approved"
+    ) {
+      leaveRequest.status = "Pending";
+    }else if (
+      leaveRequest.approver.teamLead.status === "Approved" ||
+      leaveRequest.approver.manager.status === "Pending"
+    ) {
+      leaveRequest.status = "Pending";
+    }else if (
+      leaveRequest.approver.teamLead.status === "Pending" ||
+      leaveRequest.approver.manager.status === "Pending"
+    ) {
+      leaveRequest.status = "Pending";
     }
 
     await leaveRequest.save();
