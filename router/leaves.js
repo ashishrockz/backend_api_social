@@ -64,32 +64,21 @@ router.put("/leave/:leaveId", async (req, res) => {
     }
 
     // Final approval logic
-    if (
-      leaveRequest.approver.teamLead.status === "Approved" &&
-      leaveRequest.approver.manager.status === "Approved"
-    ) {
-      leaveRequest.status = "Approved";
-    } else if (
-      leaveRequest.approver.teamLead.status === "Rejected" ||
-      leaveRequest.approver.manager.status === "Rejected"
-    ) {
-      leaveRequest.status = "Rejected";
-    }else if (
-      leaveRequest.approver.teamLead.status === "Pending" ||
-      leaveRequest.approver.manager.status === "Approved"
-    ) {
-      leaveRequest.status = "Pending";
-    }else if (
-      leaveRequest.approver.teamLead.status === "Approved" ||
-      leaveRequest.approver.manager.status === "Pending"
-    ) {
-      leaveRequest.status = "Pending";
-    }else if (
-      leaveRequest.approver.teamLead.status === "Pending" ||
-      leaveRequest.approver.manager.status === "Pending"
-    ) {
-      leaveRequest.status = "Pending";
-    }
+   // Final approval logic based on team lead and manager approvals
+if (
+  leaveRequest.approver.teamLead.status === "Approved" &&
+  leaveRequest.approver.manager.status === "Approved"
+) {
+  leaveRequest.status = "Approved";
+} else if (
+  leaveRequest.approver.teamLead.status === "Rejected" ||
+  leaveRequest.approver.manager.status === "Rejected"
+) {
+  leaveRequest.status = "Rejected";
+} else {
+  leaveRequest.status = "Pending"; // Maintain pending if neither are fully approved or rejected
+}
+
 
     await leaveRequest.save();
     res.status(200).json({ message: `Leave ${status.toLowerCase()} by ${approverRole}`, leaveRequest });
