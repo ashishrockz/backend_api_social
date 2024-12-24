@@ -125,89 +125,89 @@ router.get('/me', verifyToken, async (req, res) => {
 //   // In JWT, logout is typically handled client-side by removing the token
 //   res.json({ message: "Logout successful" });
 // });
-const transporter = nodemailer.createTransport({
-  service: 'Gmail', // Use your email provider
-  auth: {
-    user: process.env.EMAIL, // Email for sending password reset
-    pass: process.env.EMAIL_PASSWORD // Email password
-  }
-});
-// Forgot password route: Generates and sends OTP instead of a reset link
-router.post('/forgot-password', async (req, res) => {
-  const { companyMail } = req.body;
+// const transporter = nodemailer.createTransport({
+//   service: 'Gmail', // Use your email provider
+//   auth: {
+//     user: process.env.EMAIL, // Email for sending password reset
+//     pass: process.env.EMAIL_PASSWORD // Email password
+//   }
+// });
+// // Forgot password route: Generates and sends OTP instead of a reset link
+// router.post('/forgot-password', async (req, res) => {
+//   const { companyMail } = req.body;
 
-  if (!companyMail) {
-    return res.status(400).json({ message: 'Email is required' });
-  }
+//   if (!companyMail) {
+//     return res.status(400).json({ message: 'Email is required' });
+//   }
 
-  try {
-    // Find the employee by email
-    const employee = await Employee.findOne({ companyMail });
-    if (!employee) {
-      return res.status(404).json({ message: 'Employee not found' });
-    }
+//   try {
+//     // Find the employee by email
+//     const employee = await Employee.findOne({ companyMail });
+//     if (!employee) {
+//       return res.status(404).json({ message: 'Employee not found' });
+//     }
 
-    // Generate a 6-digit OTP
-    const otp = Math.ceil( Math.random() * 1000000).toString();
+//     // Generate a 6-digit OTP
+//     const otp = Math.ceil( Math.random() * 1000000).toString();
 
-    // Save OTP and expiry time (valid for 10 minutes)
-    employee.passwordResetOTP = otp;
-    employee.passwordResetExpires = Date.now() + 600000; // 10 minutes
-    await employee.save();
+//     // Save OTP and expiry time (valid for 10 minutes)
+//     employee.passwordResetOTP = otp;
+//     employee.passwordResetExpires = Date.now() + 600000; // 10 minutes
+//     await employee.save();
 
-    // Send OTP via email
-    const mailOptions = {
-      from: process.env.EMAIL,
-      to: companyMail,
-      subject: 'Password Reset OTP',
-      html: `<p>Your OTP for password reset is: <strong>${otp}</strong></p>
-             <p>This OTP will expire in 10 minutes.</p>`
-    };
+//     // Send OTP via email
+//     const mailOptions = {
+//       from: process.env.EMAIL,
+//       to: companyMail,
+//       subject: 'Password Reset OTP',
+//       html: `<p>Your OTP for password reset is: <strong>${otp}</strong></p>
+//              <p>This OTP will expire in 10 minutes.</p>`
+//     };
 
-    await transporter.sendMail(mailOptions);
+//     await transporter.sendMail(mailOptions);
 
-    res.json({ message: 'OTP sent to your email' });
-  } catch (error) {
-    console.error('Error processing request:', error);
-    res.status(500).json({ message: 'Error processing request' });
-  }
-});
+//     res.json({ message: 'OTP sent to your email' });
+//   } catch (error) {
+//     console.error('Error processing request:', error);
+//     res.status(500).json({ message: 'Error processing request' });
+//   }
+// });
 
 
-  if (!companyMail) {
-    return res.status(400).json({ message: 'Email is required' });
-  }
+//   if (!companyMail) {
+//     return res.status(400).json({ message: 'Email is required' });
+//   }
 
-  try {
-    // Find the employee by email
-    const employee = await Employee.findOne({ companyMail });
-    if (!employee) {
-      return res.status(404).json({ message: 'Employee not found' });
-    }
+//   try {
+//     // Find the employee by email
+//     const employee = await Employee.findOne({ companyMail });
+//     if (!employee) {
+//       return res.status(404).json({ message: 'Employee not found' });
+//     }
 
-    // Generate a 6-digit OTP
-    const otp = Math.ceil( Math.random() * 1000000).toString();
+//     // Generate a 6-digit OTP
+//     const otp = Math.ceil( Math.random() * 1000000).toString();
 
-    // Save OTP and expiry time (valid for 10 minutes)
-    employee.passwordResetOTP = otp;
-    employee.passwordResetExpires = Date.now() + 600000; // 10 minutes
-    await employee.save();
+//     // Save OTP and expiry time (valid for 10 minutes)
+//     employee.passwordResetOTP = otp;
+//     employee.passwordResetExpires = Date.now() + 600000; // 10 minutes
+//     await employee.save();
 
-    // Send OTP via email
-    const mailOptions = {
-      from: process.env.EMAIL,
-      to: companyMail,
-      subject: 'Password Reset OTP',
-      html: `<p>Your OTP for password reset is: <strong>${otp}</strong></p>
-             <p>This OTP will expire in 10 minutes.</p>`
-    };
+//     // Send OTP via email
+//     const mailOptions = {
+//       from: process.env.EMAIL,
+//       to: companyMail,
+//       subject: 'Password Reset OTP',
+//       html: `<p>Your OTP for password reset is: <strong>${otp}</strong></p>
+//              <p>This OTP will expire in 10 minutes.</p>`
+//     };
 
-    await transporter.sendMail(mailOptions);
+//     await transporter.sendMail(mailOptions);
 
-    res.json({ message: 'OTP sent to your email' });
-  } catch (error) {
-    console.error('Error processing request:', error);
-    res.status(500).json({ message: 'Error processing request' });
-  }
+//     res.json({ message: 'OTP sent to your email' });
+//   } catch (error) {
+//     console.error('Error processing request:', error);
+//     res.status(500).json({ message: 'Error processing request' });
+//   }
 
 module.exports = router;
