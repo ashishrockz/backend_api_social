@@ -135,6 +135,46 @@ const transporter = nodemailer.createTransport({
 // Forgot password route: Generates and sends OTP instead of a reset link
 router.post('/forgot-password', async (req, res) => {
   const { companyMail } = req.body;
+<<<<<<< HEAD
+
+  if (!companyMail) {
+    return res.status(400).json({ message: 'Email is required' });
+  }
+
+  try {
+    // Find the employee by email
+    const employee = await Employee.findOne({ companyMail });
+    if (!employee) {
+      return res.status(404).json({ message: 'Employee not found' });
+    }
+
+    // Generate a 6-digit OTP
+    const otp = Math.ceil( Math.random() * 1000000).toString();
+
+    // Save OTP and expiry time (valid for 10 minutes)
+    employee.passwordResetOTP = otp;
+    employee.passwordResetExpires = Date.now() + 600000; // 10 minutes
+    await employee.save();
+
+    // Send OTP via email
+    const mailOptions = {
+      from: process.env.EMAIL,
+      to: companyMail,
+      subject: 'Password Reset OTP',
+      html: `<p>Your OTP for password reset is: <strong>${otp}</strong></p>
+             <p>This OTP will expire in 10 minutes.</p>`
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res.json({ message: 'OTP sent to your email' });
+  } catch (error) {
+    console.error('Error processing request:', error);
+    res.status(500).json({ message: 'Error processing request' });
+  }
+});
+=======
+>>>>>>> 8a8527721f5cc8fdf0bbf738715807c2eb23853b
 
   if (!companyMail) {
     return res.status(400).json({ message: 'Email is required' });
