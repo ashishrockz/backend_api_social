@@ -135,7 +135,6 @@ const transporter = nodemailer.createTransport({
 // Forgot password route: Generates and sends OTP instead of a reset link
 router.post('/forgot-password', async (req, res) => {
   const { companyMail } = req.body;
-<<<<<<< HEAD
 
   if (!companyMail) {
     return res.status(400).json({ message: 'Email is required' });
@@ -173,8 +172,7 @@ router.post('/forgot-password', async (req, res) => {
     res.status(500).json({ message: 'Error processing request' });
   }
 });
-=======
->>>>>>> 8a8527721f5cc8fdf0bbf738715807c2eb23853b
+
 
   if (!companyMail) {
     return res.status(400).json({ message: 'Email is required' });
@@ -211,6 +209,5 @@ router.post('/forgot-password', async (req, res) => {
     console.error('Error processing request:', error);
     res.status(500).json({ message: 'Error processing request' });
   }
-});
 
 module.exports = router;
